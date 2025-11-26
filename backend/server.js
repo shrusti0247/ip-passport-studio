@@ -1,3 +1,4 @@
+const passportRoutes = require("./routes/passportRoutes");
 const authRoutes = require("./routes/authRoutes");
 const express = require("express");
 const cors = require("cors");
@@ -11,6 +12,8 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);
+app.use("/api/passport", passportRoutes);
+
 
 // Test route
 app.get("/", (req, res) => {

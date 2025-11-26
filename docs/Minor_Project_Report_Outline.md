@@ -61,6 +61,15 @@
   - Login request with same email and password returned a success message.
 - Verified user record creation in MongoDB Atlas under the `users` collection.
 
+### Day 5 – IP Passport Model & Creation API
+
+- Designed the `Passport` model with fields such as title, description, assetType, hash, and owner.
+- Implemented `passportRoutes.js` with a `POST /api/passport/create` route.
+- Added input validation and secure, unique hash generation using the `crypto` library.
+- Linked each IP Passport to a User via `owner` (ObjectId reference).
+- Integrated passport routes in `server.js` under `/api/passport`.
+- Successfully tested passport creation through Thunder Client and verified new records in MongoDB Atlas.
+
 
 
 
