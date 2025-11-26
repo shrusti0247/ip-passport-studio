@@ -43,5 +43,24 @@
   - timestamps (createdAt, updatedAt)
 - Created a temporary `/test-user` route to verify that users can be created and stored in the MongoDB database.
 
+### Day 4 – User Authentication (Register & Login)
+
+- Created a dedicated `routes/authRoutes.js` file for authentication endpoints.
+- Added two main API routes under `/api/auth`:
+  - `POST /api/auth/register` – for new user registration.
+  - `POST /api/auth/login` – for user login.
+- Implemented server-side validation for required fields (name, email, password).
+- Integrated the `User` model with MongoDB using Mongoose.
+- Used `bcrypt` to hash passwords before saving them in the database.
+- Implemented login logic to:
+  - Find user by email.
+  - Compare provided password with the stored hashed password.
+  - Return a success response (and token structure for future protected routes).
+- Tested both routes using Thunder Client:
+  - Register request with JSON body (name, email, password) successfully created a user.
+  - Login request with same email and password returned a success message.
+- Verified user record creation in MongoDB Atlas under the `users` collection.
+
+
 
 
