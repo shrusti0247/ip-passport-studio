@@ -31,4 +31,17 @@
 
 - Updated documentation and pushed progress to GitHub.
 
+### Day 3 – Database Setup and User Model
+
+- Installed and configured MongoDB connection using Mongoose in the backend.
+- Added `MONGO_URI` to `.env` and created a reusable `connectDB` function in `config/db.js`.
+- Updated `server.js` to connect to MongoDB before starting the server.
+- Designed and implemented the initial `User` model (`User.js`) with fields:
+  - name
+  - email
+  - passwordHash
+  - timestamps (createdAt, updatedAt)
+- Created a temporary `/test-user` route to verify that users can be created and stored in the MongoDB database.
+
+
 
