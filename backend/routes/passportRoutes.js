@@ -36,4 +36,63 @@ router.post("/create", async (req, res) => {
   }
 });
 
+// GET ALL PASSPORTS FOR A USER
+router.get("/user/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const passports = await Passport.find({ owner: userId }).sort({
+      createdAt: -1,
+    });
+
+    return res.status(200).json({
+      message: "Passports fetched successfully",
+      passports,
+    });
+  } catch (error) {
+    console.error("Error fetching passports:", error);
+    return res.status(500).json({ message: "Server error" });
+  }
+});
+
+// GET A SINGLE PASSPORT BY ID
+router.get("/:passportId", async (req, res) => {
+  try {
+    const { passportId } = req.params;
+
+    const passport = await Passport.findById(passportId).populate("owner", "name email");
+
+    if (!passport) {
+      return res.status(404).json({ message: "Passport not found" });
+    }
+
+    return res.status(200).json({
+      message: "Passport fetched successfully",
+      passport,
+    });
+  } catch (error) {
+    console.error("Error fetching passport:", error);
+    return res.status(500).json({ message: "Server error" });
+  }
+});
+
+// DELETE A PASSPORT BY ID
+router.delete("/:passportId", async (req, res) => {
+  try {
+    const { passportId } = req.params;
+
+    const deleted = await Passport.findByIdAndDelete(passportId);
+
+    if (!deleted) {
+      return res.status(404).json({ message: "Passport not found" });
+    }
+
+    return res.status(200).json({ message: "Passport deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting passport:", error);
+    return res.status(500).json({ message: "Server error" });
+  }
+});
+
 module.exports = router;
+
