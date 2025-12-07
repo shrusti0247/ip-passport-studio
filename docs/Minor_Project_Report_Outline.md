@@ -70,6 +70,18 @@
 - Integrated passport routes in `server.js` under `/api/passport`.
 - Successfully tested passport creation through Thunder Client and verified new records in MongoDB Atlas.
 
+### Day 6 – IP Passport Retrieval & Management APIs
+
+- Extended the `passportRoutes.js` backend routes to support:
+  - `GET /api/passport/user/:userId` – fetch all IP Passports for a specific user.
+  - `GET /api/passport/:passportId` – fetch detailed information for a single IP Passport, including owner details using Mongoose `populate`.
+  - (Optional) `DELETE /api/passport/:passportId` – delete a specific IP Passport from the database.
+- Verified the new APIs using Thunder Client:
+  - Successfully retrieved all passports for a test user.
+  - Fetched full details for a selected passport.
+  - Confirmed deletion and non-existence after deletion.
+- These APIs will later be used by the frontend dashboard to show the user’s IP Passports and detail view.
+
 
 
 
