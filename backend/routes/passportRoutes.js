@@ -1,6 +1,22 @@
 const express = require("express");
 const Passport = require("../models/Passport");
 const crypto = require("crypto");
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
+
+// Multer Storage Setup
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/");
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + "-" + file.originalname);
+  }
+});
+
+const upload = multer({ storage });
+
 
 const router = express.Router();
 
@@ -35,6 +51,39 @@ router.post("/create", async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 });
+
+// UPLOAD a file and create passport
+router.post("/upload", upload.single("file"), async (req, res) => {
+  try {
+    const { title, description, assetType, owner } = req.body;
+
+    if (!req.file) {
+      return res.status(400).json({ message: "File is required" });
+    }
+
+    // generate a real hash of file content
+    const fileBuffer = fs.readFileSync(req.file.path);
+    const hash = require("crypto").createHash("sha256").update(fileBuffer).digest("hex");
+
+    const passport = await Passport.create({
+      title,
+      description,
+      assetType,
+      hash,
+      owner,
+    });
+
+    return res.status(201).json({
+      message: "File uploaded & Passport created successfully",
+      passport,
+    });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Server error" });
+  }
+});
+
 
 // GET ALL PASSPORTS FOR A USER
 router.get("/user/:userId", async (req, res) => {

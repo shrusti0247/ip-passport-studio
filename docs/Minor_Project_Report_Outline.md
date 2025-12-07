@@ -75,13 +75,36 @@
 - Extended the `passportRoutes.js` backend routes to support:
   - `GET /api/passport/user/:userId` – fetch all IP Passports for a specific user.
   - `GET /api/passport/:passportId` – fetch detailed information for a single IP Passport, including owner details using Mongoose `populate`.
-  - (Optional) `DELETE /api/passport/:passportId` – delete a specific IP Passport from the database.
+  - `DELETE /api/passport/:passportId` – delete a specific IP Passport from the database.
 - Verified the new APIs using Thunder Client:
   - Successfully retrieved all passports for a test user.
   - Fetched full details for a selected passport.
   - Confirmed deletion and non-existence after deletion.
 - These APIs will later be used by the frontend dashboard to show the user’s IP Passports and detail view.
 
+Day 7 – File Upload & Hashing APIs
+
+Installed and configured Multer in passportRoutes.js to enable file uploads.
+
+Added uploads/ directory to store uploaded files and updated .gitignore to prevent pushing large files.
+
+Implemented new API route:
+
+POST /api/passport/upload – handles uploading a file + metadata and creates an IP Passport entry.
+
+Extended passport creation to:
+
+Save uploaded file in uploads/ folder.
+
+Generate a SHA-256 hash of the file using Node's crypto and fs modules.
+
+Store file path + hash + metadata + owner inside MongoDB.
+
+Tested the upload functionality using Postman (since Thunder Client doesn’t support file uploads).
+
+Verified successful creation of a new Passport document in MongoDB, including file details and generated hash.
+
+This completes the backend’s core IP Passport logic for real digital assets.
 
 
 
