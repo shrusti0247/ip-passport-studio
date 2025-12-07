@@ -4,34 +4,34 @@ const crypto = require("crypto");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
+const authMiddleware = require("../middleware/authMiddleware");
 
-// Multer Storage Setup
+const router = express.Router();
+
+// ---------- Multer config for file uploads ----------
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "uploads/");
+    cb(null, path.join(__dirname, "..", "uploads")); // backend/uploads
   },
   filename: function (req, file, cb) {
-    cb(null, Date.now() + "-" + file.originalname);
-  }
+    const unique = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, unique + path.extname(file.originalname));
+  },
 });
 
 const upload = multer({ storage });
 
-
-const router = express.Router();
-
-// CREATE A PASSPORT
-router.post("/create", async (req, res) => {
+// ---------- Create passport WITHOUT file (optional old route) ----------
+router.post("/create", authMiddleware, async (req, res) => {
   try {
-    const { title, description, assetType, owner } = req.body;
+    const { title, description, assetType } = req.body;
 
-    if (!title || !assetType || !owner) {
-      return res.status(400).json({
-        message: "Title, assetType, and owner are required",
-      });
+    if (!title || !assetType) {
+      return res
+        .status(400)
+        .json({ message: "Title and assetType are required" });
     }
 
-    // Generate a random hash for now (will replace with real file hashing later)
     const hash = crypto.randomBytes(20).toString("hex");
 
     const passport = await Passport.create({
@@ -39,7 +39,7 @@ router.post("/create", async (req, res) => {
       description,
       assetType,
       hash,
-      owner,
+      owner: req.user.id, // from token
     });
 
     return res.status(201).json({
@@ -47,55 +47,65 @@ router.post("/create", async (req, res) => {
       passport,
     });
   } catch (error) {
-    console.error(error);
+    console.error("Error creating passport:", error);
     return res.status(500).json({ message: "Server error" });
   }
 });
 
-// UPLOAD a file and create passport
-router.post("/upload", upload.single("file"), async (req, res) => {
-  try {
-    const { title, description, assetType, owner } = req.body;
+// ---------- Upload file + create passport ----------
+router.post(
+  "/upload",
+  authMiddleware,
+  upload.single("file"),
+  async (req, res) => {
+    try {
+      const { title, description, assetType } = req.body;
 
-    if (!req.file) {
-      return res.status(400).json({ message: "File is required" });
+      if (!title || !assetType) {
+        return res.status(400).json({
+          message: "Title and assetType are required",
+        });
+      }
+
+      if (!req.file) {
+        return res.status(400).json({ message: "File is required" });
+      }
+
+      const filePath = req.file.path;
+
+      // Generate hash of file contents
+      const buffer = fs.readFileSync(filePath);
+      const hash = crypto.createHash("sha256").update(buffer).digest("hex");
+
+      const passport = await Passport.create({
+        title,
+        description,
+        assetType,
+        hash,
+        filePath,
+        owner: req.user.id, // from token
+      });
+
+      return res.status(201).json({
+        message: "IP Passport created successfully with file upload",
+        passport,
+      });
+    } catch (error) {
+      console.error("Error uploading passport:", error);
+      return res.status(500).json({ message: "Server error" });
     }
-
-    // generate a real hash of file content
-    const fileBuffer = fs.readFileSync(req.file.path);
-    const hash = require("crypto").createHash("sha256").update(fileBuffer).digest("hex");
-
-    const passport = await Passport.create({
-      title,
-      description,
-      assetType,
-      hash,
-      owner,
-    });
-
-    return res.status(201).json({
-      message: "File uploaded & Passport created successfully",
-      passport,
-    });
-
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: "Server error" });
   }
-});
+);
 
-
-// GET ALL PASSPORTS FOR A USER
-router.get("/user/:userId", async (req, res) => {
+// ---------- Get all passports for CURRENT user ----------
+router.get("/my", authMiddleware, async (req, res) => {
   try {
-    const { userId } = req.params;
-
-    const passports = await Passport.find({ owner: userId }).sort({
+    const passports = await Passport.find({ owner: req.user.id }).sort({
       createdAt: -1,
     });
 
     return res.status(200).json({
-      message: "Passports fetched successfully",
+      message: "Passports fetched successfully for current user",
       passports,
     });
   } catch (error) {
@@ -104,12 +114,15 @@ router.get("/user/:userId", async (req, res) => {
   }
 });
 
-// GET A SINGLE PASSPORT BY ID
-router.get("/:passportId", async (req, res) => {
+// ---------- Get single passport by ID ----------
+router.get("/:passportId", authMiddleware, async (req, res) => {
   try {
     const { passportId } = req.params;
 
-    const passport = await Passport.findById(passportId).populate("owner", "name email");
+    const passport = await Passport.findOne({
+      _id: passportId,
+      owner: req.user.id,
+    });
 
     if (!passport) {
       return res.status(404).json({ message: "Passport not found" });
@@ -125,18 +138,28 @@ router.get("/:passportId", async (req, res) => {
   }
 });
 
-// DELETE A PASSPORT BY ID
-router.delete("/:passportId", async (req, res) => {
+// ---------- Delete passport by ID ----------
+router.delete("/:passportId", authMiddleware, async (req, res) => {
   try {
     const { passportId } = req.params;
 
-    const deleted = await Passport.findByIdAndDelete(passportId);
+    const passport = await Passport.findOneAndDelete({
+      _id: passportId,
+      owner: req.user.id,
+    });
 
-    if (!deleted) {
+    if (!passport) {
       return res.status(404).json({ message: "Passport not found" });
     }
 
-    return res.status(200).json({ message: "Passport deleted successfully" });
+    // Optional: delete the file from disk if it exists
+    if (passport.filePath && fs.existsSync(passport.filePath)) {
+      fs.unlinkSync(passport.filePath);
+    }
+
+    return res.status(200).json({
+      message: "Passport deleted successfully",
+    });
   } catch (error) {
     console.error("Error deleting passport:", error);
     return res.status(500).json({ message: "Server error" });
@@ -144,4 +167,3 @@ router.delete("/:passportId", async (req, res) => {
 });
 
 module.exports = router;
-

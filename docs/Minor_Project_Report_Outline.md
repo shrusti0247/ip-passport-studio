@@ -104,4 +104,20 @@
 
 - This completes the full backend pipeline for **secure file-based IP Passport generation**.
 
+### Day 8 – Auth-Protected IP Passport APIs
+
+- Implemented a reusable JWT-based authentication middleware (`authMiddleware.js`) to protect backend routes.
+- Middleware now:
+  - Reads the `Authorization: Bearer <token>` header.
+  - Verifies the JWT using `JWT_SECRET` from `.env`.
+  - Fetches the corresponding user from MongoDB and attaches it to `req.user`.
+- Updated `passportRoutes.js` so that:
+  - `POST /api/passport/create` and `POST /api/passport/upload` use `auth` and automatically set `owner` from `req.user._id` instead of reading it from the request body.
+  - Added a new `GET /api/passport/my` route to fetch all IP Passports belonging to the currently logged-in user.
+  - Secured `GET /api/passport/:passportId` and `DELETE /api/passport/:passportId` so that users can only view or delete passports they own.
+- Tested all protected routes using Postman by:
+  - Logging in via `POST /api/auth/login` to obtain a JWT.
+  - Sending the token in the `Authorization: Bearer <token>` header for all passport-related requests.
+- With these changes, the backend now enforces user-specific access control for IP Passport creation, retrieval, and deletion.
+
 

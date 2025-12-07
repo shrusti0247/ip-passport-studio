@@ -20,13 +20,20 @@ const passportSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    filePath: {
+      type: String, // where the uploaded file is stored
+    },
     owner: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true, // createdAt, updatedAt
+  }
 );
 
 module.exports = mongoose.model("Passport", passportSchema);
+
+
