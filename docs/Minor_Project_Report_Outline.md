@@ -82,29 +82,26 @@
   - Confirmed deletion and non-existence after deletion.
 - These APIs will later be used by the frontend dashboard to show the user’s IP Passports and detail view.
 
-Day 7 – File Upload & Hashing APIs
+## Day 7 – File Upload & Hashing APIs
 
-Installed and configured Multer in passportRoutes.js to enable file uploads.
+- Installed and configured **Multer** in `passportRoutes.js` to enable file uploads.
 
-Added uploads/ directory to store uploaded files and updated .gitignore to prevent pushing large files.
+- Added an `uploads/` directory to store uploaded files locally, and updated `.gitignore` to prevent large files from being committed.
 
-Implemented new API route:
+- Implemented a new API route:
 
-POST /api/passport/upload – handles uploading a file + metadata and creates an IP Passport entry.
+  - `POST /api/passport/upload`  
+    Handles uploading a file + metadata and automatically creates an IP Passport entry in MongoDB.
 
-Extended passport creation to:
+- Extended passport creation logic to:
+  - Store the uploaded file inside the `uploads/` folder.
+  - Generate a **SHA-256 file hash** using Node’s `crypto` and `fs` modules.
+  - Save file path + hash + metadata + owner ID inside MongoDB.
 
-Save uploaded file in uploads/ folder.
+- Successfully tested full file upload workflow using **Postman**:
+  - Sent form-data request with file + title + description + assetType + owner.
+  - Verified new Passport entries in MongoDB Atlas with correct file path & hash.
 
-Generate a SHA-256 hash of the file using Node's crypto and fs modules.
-
-Store file path + hash + metadata + owner inside MongoDB.
-
-Tested the upload functionality using Postman (since Thunder Client doesn’t support file uploads).
-
-Verified successful creation of a new Passport document in MongoDB, including file details and generated hash.
-
-This completes the backend’s core IP Passport logic for real digital assets.
-
+- This completes the full backend pipeline for **secure file-based IP Passport generation**.
 
 
