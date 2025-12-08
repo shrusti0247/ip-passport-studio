@@ -120,4 +120,17 @@
   - Sending the token in the `Authorization: Bearer <token>` header for all passport-related requests.
 - With these changes, the backend now enforces user-specific access control for IP Passport creation, retrieval, and deletion.
 
+## Day 9 – Frontend Setup & React Initialization
+- Set up the React frontend structure inside the `frontend/` directory.
+- Verified that `node_modules` were installed correctly and reinstalled missing dependencies.
+- Fixed the issue where `react-scripts` was not recognized by reinstalling it and cleaning the environment.
+- Successfully ran the React development server using `npm start`.
+- Resolved port conflicts by allowing the app to run on an alternate port.
+- Cleaned default React files and ensured the folder structure aligns with the project:
+  - `src/pages/` for Home, Login, and Dashboard components.
+  - `src/api/client.js` for setting up Axios and backend communication.
+  - Updated `App.js` to prepare for routing between pages.
+- Confirmed that the frontend is now running correctly in the browser and ready for authentication and dashboard integration.
+
+
 
