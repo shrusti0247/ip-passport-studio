@@ -1,12 +1,16 @@
 import React from "react";
+import { useAuth } from "../context/AuthContext";
 
 function Dashboard() {
+  const { user } = useAuth();
+
   return (
-    <div className="card">
-      <h2>Dashboard (Coming Soon)</h2>
-      <p className="helper-text">
-        Here we will show your IP Passports, uploads, and passport details once
-        authentication and APIs are connected to the frontend.
+    <div className="page">
+      <h2>Dashboard</h2>
+      {user && <p>Welcome, <strong>{user.name}</strong> 👋</p>}
+      <p>
+        Here we will show your IP Passports, uploads, and other data fetched
+        from the backend.
       </p>
     </div>
   );

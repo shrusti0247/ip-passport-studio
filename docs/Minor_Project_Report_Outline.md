@@ -132,5 +132,37 @@
   - Updated `App.js` to prepare for routing between pages.
 - Confirmed that the frontend is now running correctly in the browser and ready for authentication and dashboard integration.
 
+### Day 10 – Frontend Authentication & Protected Dashboard
+
+- Configured a shared Axios client in `frontend/src/api/client.js` with:
+  - `baseURL` pointing to `http://localhost:5000/api`.
+  - An interceptor that automatically attaches the `Authorization: Bearer <token>` header when a token exists in `localStorage`.
+- Created `frontend/src/api/auth.js` with helper functions for:
+  - `login(email, password)` – calls `POST /api/auth/login`.
+  - `register(name, email, password)` – prepared for future use.
+- Implemented a global authentication context in `frontend/src/context/AuthContext.js`:
+  - Stores the logged-in `user` in React state and `localStorage`.
+  - Exposes `login()`, `logout()`, `isAuthenticated`, and `loading` to the rest of the app.
+  - Restores user session from `localStorage` on page refresh.
+- Updated `frontend/src/index.js` to wrap the app in `<AuthProvider>` so all components can access login state.
+- Added a reusable `ProtectedRoute` component in `frontend/src/components/ProtectedRoute.js` to:
+  - Block access to protected pages when the user is not authenticated.
+  - Redirect unauthenticated users to `/login`.
+- Built a simple navigation bar in `frontend/src/components/Navbar.js` that:
+  - Shows `Home` and `Login` links for guests.
+  - Shows “Hi, {user.name}” and a `Logout` button for logged-in users.
+- Refactored `App.js` routing to:
+  - Define routes for `/` (Home), `/login` (Login), and `/dashboard` (Dashboard).
+  - Protect the `/dashboard` route using `<ProtectedRoute>`.
+- Updated `Login.js` to connect with the backend:
+  - Submits credentials to `POST /api/auth/login` via the new API helper.
+  - On success, saves the returned `token` and `user` in the AuthContext and `localStorage`.
+  - Redirects the user to `/dashboard` and shows error messages on failure.
+- Enhanced `Dashboard.js` to display the logged-in user’s name using the AuthContext.
+- Verified end-to-end flow:
+  - Backend running with `npm run dev`.
+  - Frontend running with `npm start`.
+  - Successful login from the React UI, automatic redirect to Dashboard, and proper logout behaviour.
+
 
 

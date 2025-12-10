@@ -1,39 +1,31 @@
+// frontend/src/pages/Home.js
 import React, { useEffect, useState } from "react";
 import api from "../api/client";
 
 function Home() {
-  const [status, setStatus] = useState("Checking backend...");
-  const [loading, setLoading] = useState(true);
+  const [backendStatus, setBackendStatus] = useState("Checking backend...");
 
   useEffect(() => {
-    async function checkBackend() {
+    const checkBackend = async () => {
       try {
-        const res = await api.get("/"); // this hits: http://localhost:5000/
-        setStatus(res.data); // "IP Passport backend is running ✅"
+        const res = await api.get("/health");
+        if (res.data?.status === "ok") {
+          setBackendStatus("Backend is reachable ✅");
+        } else {
+          setBackendStatus("Backend is not reachable.");
+        }
       } catch (err) {
-        console.error(err);
-        setStatus("Backend is not reachable. Make sure npm run dev is running in backend.");
-      } finally {
-        setLoading(false);
+        setBackendStatus("Backend is not reachable. Make sure npm run dev is running in backend.");
       }
-    }
+    };
 
     checkBackend();
   }, []);
 
   return (
-    <div className="card">
-      <h2>Welcome to IP Passport Studio</h2>
-      <p className="helper-text">
-        This app lets you register digital content and generate IP Passports.
-      </p>
-
-      <div style={{ marginTop: "1rem" }}>
-        <strong>Backend status: </strong>
-        <span className={status.includes("running") ? "status-ok" : "status-error"}>
-          {loading ? "Checking..." : status}
-        </span>
-      </div>
+    <div>
+      <h1>Welcome to IP Passport Studio</h1>
+      <p>Backend status: {backendStatus}</p>
     </div>
   );
 }

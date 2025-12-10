@@ -11,6 +11,15 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Health check route
+app.get("/api/health", (req, res) => {
+  return res.json({
+    status: "ok",
+    message: "Backend is running",
+  });
+});
+
+
 app.use("/api/auth", authRoutes);
 app.use("/api/passport", passportRoutes);
 

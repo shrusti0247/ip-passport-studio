@@ -1,10 +1,8 @@
+// frontend/src/api/client.js
 import axios from "axios";
 
-const api = axios.create({
-  baseURL: "http://localhost:5000",
+const client = axios.create({
+  baseURL: "http://localhost:5000/api",
 });
 
-// Later we will attach token here if needed
-// api.interceptors.request.use((config) => { ... });
-
-export default api;
+export default client;
